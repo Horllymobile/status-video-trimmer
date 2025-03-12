@@ -6,5 +6,6 @@ import java.io.File
 data class VideoTrimmerUiState(
     var isLoading: Boolean = false,
     var trimmedChunks: List<File> = emptyList(),
-    var videoUri: Uri? = null
+    var videoUri: Uri? = null,
+    var errorMessage: String? = null
 )

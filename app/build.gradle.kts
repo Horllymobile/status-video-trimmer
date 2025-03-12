@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -40,16 +42,24 @@ android {
 }
 
 dependencies {
-
-    implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+//    implementation("com.arthenica:ffmpegkit-full:6.0")
     implementation("com.arthenica:ffmpeg-kit-full:6.0-2")
 
     implementation("androidx.media3:media3-exoplayer:1.5.1")
-    implementation("androidx.media3:media3-exoplayer-dash:1.5.1")
+
     implementation("androidx.media3:media3-ui:1.5.1")
 
     implementation("androidx.compose.material:material-icons-extended")
+
+    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-crashlytics")
+
+    implementation("com.google.firebase:firebase-appdistribution-api-ktx:16.0.0-beta14")
+
+//    betaImplementation("com.google.firebase:firebase-appdistribution:16.0.0-beta14")
 
 
     implementation(libs.androidx.core.ktx)

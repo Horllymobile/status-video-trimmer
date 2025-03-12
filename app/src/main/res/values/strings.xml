@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">Status Video Cutter</string>
+    <string name="app_name">Video Chunker</string>
+    <string name="trim_to_chunks">Trim into Chunks</string>
+    <string name="tap_the_icon">Tap the icon to choose a video for trimming</string>
+    <string name="storage_permission_denied">Storage permission is required to select a video.</string>
+    <string name="clear_all">ClearAll</string>
+    <string name="on_demand_Video">On Demand Video</string>
+    <string name="share_chunk">Share chunk %d</string>
+    <string name="additionalFormText">Drop a feedback</string>
 </resources>
