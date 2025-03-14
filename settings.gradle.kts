@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Status Video Cutter"
+rootProject.name = "Video Chunker"
 include(":app")

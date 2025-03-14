@@ -3,8 +3,23 @@
     <string name="trim_to_chunks">Trim into Chunks</string>
     <string name="tap_the_icon">Tap the icon to choose a video for trimming</string>
     <string name="storage_permission_denied">Storage permission is required to select a video.</string>
-    <string name="clear_all">ClearAll</string>
+    <string name="clear_all">Clear All</string>
+    <string name="settings">Settings</string>
+    <string name="chunk_duration">Chunk duration</string>
+    <string name="trim">Trim</string>
+    <string name="saved">Saved</string>
+    <string name="please_wait">Please wait…</string>
+    <string name="theme">Theme</string>
     <string name="on_demand_Video">On Demand Video</string>
     <string name="share_chunk">Share chunk %d</string>
     <string name="additionalFormText">Drop a feedback</string>
+    <string name="duration">%d seconds</string>
+    <string name="arrowDropDown">Arrow Drop Down</string>
+    <string name="english">English</string>
+    <string name="french">French</string>
+    <string name="spanish">Spanish</string>
+    <string name="portuguese">Portuguese</string>
+    <string name="language">Language</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
 </resources>

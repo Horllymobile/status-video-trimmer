@@ -10,6 +10,10 @@ android {
     namespace = "com.horllymobile.statusvideocutter"
     compileSdk = 35
 
+    androidResources {
+        generateLocaleConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.horllymobile.statusvideocutter"
         minSdk = 24
@@ -42,11 +46,14 @@ android {
 }
 
 dependencies {
+    implementation("androidx.navigation:navigation-compose:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
 //    implementation("com.arthenica:ffmpegkit-full:6.0")
     implementation("com.arthenica:ffmpeg-kit-full:6.0-2")
 
     implementation("androidx.media3:media3-exoplayer:1.5.1")
+
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 
     implementation("androidx.media3:media3-ui:1.5.1")
 
@@ -58,6 +65,10 @@ dependencies {
     implementation("com.google.firebase:firebase-crashlytics")
 
     implementation("com.google.firebase:firebase-appdistribution-api-ktx:16.0.0-beta14")
+
+    implementation("androidx.datastore:datastore-preferences:1.1.3")
+
+    implementation("com.google.android.gms:play-services-ads:24.1.0")
 
 //    betaImplementation("com.google.firebase:firebase-appdistribution:16.0.0-beta14")
 
@@ -71,6 +82,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.ui.text.google.fonts)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

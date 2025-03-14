@@ -26,8 +26,9 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ClearAll
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.OndemandVideo
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -40,7 +41,10 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -60,25 +64,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.MediaItem
+import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.horllymobile.statusvideocutter.R
+import com.horllymobile.statusvideocutter.ui.viewmodel.SettingsViewModel
+import com.horllymobile.statusvideocutter.ui.viewmodel.VideoTrimmerViewModel
+import com.horllymobile.statusvideocutter.ui.viewmodel.VideoTrimmerViewModelFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 
+@OptIn(UnstableApi::class)
 @kotlin.OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VideoTrimmerApp(
     modifier: Modifier = Modifier,
-    firebaseAnalytics: FirebaseAnalytics
+    onNavigateToSetting: () -> Unit,
+    settingsViewModel: SettingsViewModel,
 ) {
-    val videoTrimmerViewModel: VideoTrimmerViewModel = viewModel()
-    val videoTrimmerUiState by videoTrimmerViewModel.videoTrimmerUiState.collectAsState()
     val context = LocalContext.current
+    val videoTrimmerViewModel: VideoTrimmerViewModel = viewModel(
+        factory = VideoTrimmerViewModelFactory(context)
+    )
+    val videoTrimmerUiState by videoTrimmerViewModel.videoTrimmerUiState.collectAsState()
+    val tabs = listOf(stringResource(R.string.trim), stringResource(R.string.saved))
 
     val permissionFail = stringResource(R.string.storage_permission_denied)
     var showPermissionRationale by remember { mutableStateOf(false) }
@@ -90,6 +102,10 @@ fun VideoTrimmerApp(
             videoTrimmerViewModel.updateVideoUri(result.data?.data)
         }
     }
+    val settingsUiState by settingsViewModel.settingsUiState.collectAsState()
+    Log.d("settingsUiState", "$settingsUiState")
+    val chunkDuration = settingsUiState.chunkDuration
+    Log.d("chunkDuration", "$chunkDuration")
 
     val activity = LocalActivity.current
 
@@ -154,6 +170,7 @@ fun VideoTrimmerApp(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
@@ -161,37 +178,105 @@ fun VideoTrimmerApp(
                 title = {
                     Text(stringResource(R.string.app_name))
                 },
-                actions = {}
+                actions = {
+                    IconButton(
+                        onClick = onNavigateToSetting
+                    ) {
+                        Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.settings))
+                    }
+                    if (videoTrimmerUiState.selectedTab == 0 && videoTrimmerUiState.trimmedChunks.isNotEmpty()) {
+                        IconButton(
+                            onClick = {
+                                videoTrimmerViewModel.updateTrimmedChunks()
+                                videoTrimmerViewModel.updateVideoUri()
+                            }
+                        ) {
+                            Icon(Icons.Filled.DeleteSweep, contentDescription = stringResource(R.string.clear_all))
+                        }
+                    }
+                }
             )
         },
         floatingActionButton = {
-            if (videoTrimmerUiState.trimmedChunks.isEmpty()) {
-                FloatingActionButton(
-                    onClick = {
-                        onSelectVideo()
+            if (videoTrimmerUiState.selectedTab == 0) {
+                if (videoTrimmerUiState.trimmedChunks.isEmpty()) {
+                    FloatingActionButton(
+                        onClick = {
+                            onSelectVideo()
+                        }
+                    ) {
+                        Icon(Icons.Filled.OndemandVideo, contentDescription = stringResource(R.string.on_demand_Video))
                     }
-                ) {
-                    Icon(Icons.Filled.OndemandVideo, contentDescription = stringResource(R.string.on_demand_Video))
-                }
-            }
-            if (videoTrimmerUiState.trimmedChunks.isNotEmpty()) {
-                FloatingActionButton(
-                    onClick = {
-                        videoTrimmerViewModel.updateTrimmedChunks()
-                        videoTrimmerViewModel.updateVideoUri()
+                } else {
+                    FloatingActionButton(
+                        onClick = {
+                            videoTrimmerViewModel.updateTrimmedChunks()
+                            videoTrimmerViewModel.updateVideoUri()
+                        }
+                    ) {
+                        Icon(Icons.Filled.DeleteSweep, contentDescription = stringResource(R.string.clear_all))
                     }
-                ) {
-                    Icon(Icons.Filled.ClearAll, contentDescription = stringResource(R.string.clear_all))
                 }
             }
         }
-    ) { paddding ->
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            TabRow(selectedTabIndex = videoTrimmerUiState.selectedTab) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        text = { Text(title) },
+                        selected = videoTrimmerUiState.selectedTab == index,
+                        onClick = { videoTrimmerViewModel.updateSelectedTab(index) }
+                    )
+                }
+            }
 
+            when(videoTrimmerUiState.selectedTab) {
+                0 -> {
+                    if (chunkDuration != null) {
+                        TrimmerScreen(
+                            videoTrimmerViewModel = videoTrimmerViewModel,
+                            context = context,
+                            onSelectVideo = { onSelectVideo() },
+                            chunkDuration = chunkDuration.value as Int
+                        )
+                    }
+                }
+                1 -> {
+                    SavedScreen(
+                        videoTrimmerViewModel = videoTrimmerViewModel,
+                        context = context
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TrimmerScreen(
+    modifier: Modifier = Modifier,
+    videoTrimmerViewModel: VideoTrimmerViewModel,
+    context: Context,
+    onSelectVideo: () -> Unit,
+    chunkDuration: Int,
+) {
+    val videoTrimmerUiState by videoTrimmerViewModel.videoTrimmerUiState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+    Column(
+        modifier = modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+    ) {
         if (videoTrimmerUiState.trimmedChunks.isNotEmpty()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddding),
+                    .padding(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
@@ -211,8 +296,9 @@ fun VideoTrimmerApp(
                         ) {
                             itemsIndexed(videoTrimmerUiState.trimmedChunks) { index, file ->
                                 VideoChunkItem(index = index, file = file, context = context,
-                                    videoTrimmerViewModel = videoTrimmerViewModel,
-                                    firebaseAnalytics = firebaseAnalytics
+                                    onShare = {
+                                        videoTrimmerViewModel.shareToWhatsApp(context, file)
+                                    }
                                 )
                             }
                         }
@@ -224,7 +310,7 @@ fun VideoTrimmerApp(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddding),
+                    .padding(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -233,7 +319,7 @@ fun VideoTrimmerApp(
                         Text(videoTrimmerUiState.errorMessage!!)
                     }
                     if (videoTrimmerUiState.isLoading) {
-                        Text("Please Wait...")
+                        Text(stringResource(R.string.please_wait))
                         Spacer(modifier = Modifier.height(10.dp))
                         LinearProgressIndicator()
                     }
@@ -242,7 +328,7 @@ fun VideoTrimmerApp(
                         Button(
                             onClick = {
                                 coroutineScope.launch {
-                                    videoTrimmerViewModel.trimVideo(context, videoTrimmerUiState.videoUri!!)
+                                    videoTrimmerViewModel.trimVideo(context, videoTrimmerUiState.videoUri!!, chunkDuration = chunkDuration)
                                 }
                             },
                             modifier = Modifier.padding(top = 16.dp)
@@ -258,9 +344,7 @@ fun VideoTrimmerApp(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        IconButton(onClick = {
-                            onSelectVideo()
-                        }) {
+                        IconButton(onClick = onSelectVideo) {
                             Icon(
                                 Icons.Filled.OndemandVideo,
                                 modifier = Modifier.size(38.dp),
@@ -276,12 +360,49 @@ fun VideoTrimmerApp(
     }
 }
 
+@Composable
+fun SavedScreen(
+    modifier: Modifier = Modifier,
+    videoTrimmerViewModel: VideoTrimmerViewModel,
+    context: Context,
+) {
+    val videoTrimmerUiState by videoTrimmerViewModel.videoTrimmerUiState.collectAsState()
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        if (videoTrimmerUiState.savedChunks.isEmpty()) {
+            Text(
+                text = "No saved chunks available.",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        } else {
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Fixed(2),
+                verticalItemSpacing = 8.dp,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                itemsIndexed(videoTrimmerUiState.savedChunks) { index, file ->
+                    VideoChunkItem(index = index, file = file, context = context,
+                        onShare = {
+                            videoTrimmerViewModel.shareToWhatsApp(context, file)
+                        })
+                }
+            }
+        }
+    }
+}
+
 @OptIn(UnstableApi::class)
 @Composable
 fun VideoChunkItem(
     index: Int, file: File, context: Context,
-    videoTrimmerViewModel: VideoTrimmerViewModel,
-    firebaseAnalytics: FirebaseAnalytics
+    onShare: () -> Unit
 ) {
     // ExoPlayer setup
     val exoPlayer = remember(file) {
@@ -324,10 +445,7 @@ fun VideoChunkItem(
 
             // Share Button
             IconButton(
-                onClick = {
-                    videoTrimmerViewModel.shareToWhatsApp(context, file, firebaseAnalytics = firebaseAnalytics)
-
-                },
+                onClick = onShare,
                 modifier = Modifier
                     .align(Alignment.BottomEnd) // Position at bottom-right
                     .padding(8.dp)

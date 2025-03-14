@@ -17,6 +17,16 @@
         android:theme="@style/Theme.StatusVideoCutter"
         tools:targetApi="31">
 
+        <meta-data
+            android:name="autoStoreLocales"
+            android:value="true"
+            />
+
+        <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-1984208717342117~4663963885"/>
+
         <!-- Add this provider declaration -->
         <provider
             android:name="androidx.core.content.FileProvider"
