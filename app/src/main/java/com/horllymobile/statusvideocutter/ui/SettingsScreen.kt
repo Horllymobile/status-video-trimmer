@@ -3,9 +3,11 @@ package com.horllymobile.statusvideocutter.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -16,6 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -86,32 +89,36 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(stringResource(R.string.chunk_duration))
+                    Text(stringResource(R.string.default_duration))
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(stringResource(R.string.duration, settingsUiState.chunkDuration?.value.toString().toInt()))
-                        IconButton(
-                            onClick = {
-                                chunkDropDownExpand = true
+                        OutlinedButton(onClick = {
+                            chunkDropDownExpand = true
+                        }) {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(stringResource(R.string.seconds, settingsUiState.chunkDuration?.value.toString().toInt()))
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Icon(Icons.Filled.ArrowDropDown, contentDescription = stringResource(R.string.arrowDropDown))
                             }
-                        ) {
-                            Icon(Icons.Filled.ArrowDropDown, contentDescription = stringResource(R.string.arrowDropDown))
                         }
                         DropdownMenu(
                             expanded = chunkDropDownExpand,
                             onDismissRequest = { chunkDropDownExpand = false }
                         ) {
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.duration, 60)) },
+                                text = { Text(stringResource(R.string.seconds, 60)) },
                                 onClick = {
                                     settingsViewModel.updateChunkDuration(60)
                                     chunkDropDownExpand = false
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.duration, 30)) },
+                                text = { Text(stringResource(R.string.seconds, 30)) },
                                 onClick = {
                                     settingsViewModel.updateChunkDuration(30)
                                     chunkDropDownExpand = false
@@ -134,14 +141,19 @@ fun SettingsScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        settingsUiState.language?.let { Text(stringResource(it.displayLanguage)) }
-                        IconButton(
-                            onClick = {
-                                langDropDownExpand = true
+                        OutlinedButton(onClick = {
+                            langDropDownExpand = true
+                        }) {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                settingsUiState.language?.let { Text(stringResource(it.displayLanguage)) }
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Icon(Icons.Filled.ArrowDropDown, contentDescription = stringResource(R.string.arrowDropDown))
                             }
-                        ) {
-                            Icon(Icons.Filled.ArrowDropDown, contentDescription = stringResource(R.string.arrowDropDown))
                         }
+
                         DropdownMenu(
                             expanded = langDropDownExpand,
                             onDismissRequest = { langDropDownExpand = false }
@@ -174,13 +186,17 @@ fun SettingsScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("${settingsUiState.theme?.value!!}")
-                        IconButton(
-                            onClick = {
-                                themDropDownExpand = true
+                        OutlinedButton(onClick = {
+                            themDropDownExpand = true
+                        }) {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("${settingsUiState.theme?.value!!}")
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Icon(Icons.Filled.ArrowDropDown, contentDescription = stringResource(R.string.arrowDropDown))
                             }
-                        ) {
-                            Icon(Icons.Filled.ArrowDropDown, contentDescription = stringResource(R.string.arrowDropDown))
                         }
                         DropdownMenu(
                             expanded = themDropDownExpand,

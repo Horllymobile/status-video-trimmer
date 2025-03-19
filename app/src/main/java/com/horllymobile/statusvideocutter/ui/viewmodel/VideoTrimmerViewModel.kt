@@ -14,10 +14,8 @@ import com.arthenica.ffmpegkit.FFprobeKit
 import com.arthenica.ffmpegkit.FFprobeSession
 import com.horllymobile.statusvideocutter.data.VideoTrimmerUiState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
@@ -30,26 +28,6 @@ class VideoTrimmerViewModel(private val context: Context) : ViewModel() {
 
     val videoTrimmerUiState get() = _videoTrimmerUiState.asStateFlow()
 
-
-    init {
-        loadSavedChunks()
-    }
-
-    private fun loadSavedChunks() {
-        val outputDir = File(context.getExternalFilesDir(null), "VideoChunker")
-        if (outputDir.exists()) {
-            updateSavedChunks()
-            updateSavedChunks(outputDir.listFiles()?.filter { it.extension == "mp4" }?.sortedDescending() ?: emptyList())
-        }
-    }
-
-    fun updateSavedChunks(files: List<File> = emptyList()) {
-        _videoTrimmerUiState.update { state ->
-            state.copy(
-                savedChunks = files
-            )
-        }
-    }
 
     fun updateSelectedTab(tab: Int) {
         _videoTrimmerUiState.update { state ->
@@ -107,7 +85,7 @@ class VideoTrimmerViewModel(private val context: Context) : ViewModel() {
     }
 
 
-    fun trimVideo(context: Context, videoUri: Uri, chunkDuration: Int) {
+    fun trimVideo(context: Context, videoUri: Uri, chunkDuration: Int, savedTrimmedViewModel: SavedTrimmedViewModel) {
         updateLoading(true)
         viewModelScope.launch(Dispatchers.IO) {
             updateTrimmedChunks()
@@ -120,7 +98,7 @@ class VideoTrimmerViewModel(private val context: Context) : ViewModel() {
                     updateError("No chunks were created.")
                 }
                 updateLoading(false)
-                loadSavedChunks()
+                savedTrimmedViewModel.loadSavedChunks();
             } catch (e: Exception) {
                 updateError("Error trimming video: ${e.message}")
             } finally {

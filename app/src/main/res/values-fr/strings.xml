@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Video Chunker</string>
-    <string name="trim_to_chunks">Couper en morceaux</string>
+    <string name="trim_to_chunks">Garniture</string>
     <string name="tap_the_icon">Tap the icon to choose a video for trimming</string>
     <string name="storage_permission_denied">Appuyez sur l\'icône pour choisir une vidéo à découper</string>
     <string name="clear_all">Tout effacer</string>
     <string name="settings">Paramètres</string>
     <string name="on_demand_Video">Vidéo à la demande</string>
     <string name="share_chunk">Partager un morceau %d</string>
+    <string name="delete_chunk">Supprimer un morceau</string>
     <string name="additionalFormText">Déposez un commentaire</string>
-    <string name="duration">%d secondes</string>
+    <string name="default_duration">Durée par défaut</string>
+    <string name="duration">Durée</string>
+    <string name="seconds">%d secondes</string>
     <string name="please_wait">S\'il vous plaît, attendez…</string>
     <string name="trim">Garniture</string>
     <string name="saved">Enregistré</string>
